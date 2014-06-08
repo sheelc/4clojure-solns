@@ -225,3 +225,100 @@
 (= (coll-reverse (sorted-set 5 7 2 7)) '(7 5 2))
 
 (= (coll-reverse [[1 2][3 4][5 6]]) [[5 6][3 4][1 2]])
+
+
+;; 24 Sum It All Up
+
+;; Only relying on first/rest
+(defn summing [coll]
+  (loop [sum 0
+         coll-to-sum coll]
+    (if (empty? coll-to-sum)
+      sum
+      (recur (+ sum (first coll-to-sum)) (rest coll-to-sum)))))
+
+;; Using more seq functions
+(defn summing [coll]
+  (reduce + coll))
+
+(= (summing [1 2 3]) 6)
+
+(= (summing (list 0 -2 5 5)) 8)
+
+(= (summing #{4 2 1}) 7)
+
+(= (summing '(0 0 -1)) -1)
+
+(= (summing '(1 10 3)) 14)
+
+
+;; 25 Find the odd numbers
+
+;; Practiced enough loops, now going to try to stick to higher level functions
+(defn odds [coll]
+  (filter odd? coll))
+
+(= (odds #{1 2 3 4 5}) '(1 3 5))
+
+(= (odds [4 2 1 6]) '(1))
+
+(= (odds [2 2 4 6]) '())
+
+(= (odds [1 1 1 3]) '(1 1 1 3))
+
+
+;; 26 Fibonacci Sequence
+
+;; First attempt
+(defn fibs [n]
+  (let [numbers [1 1]]
+    (case n
+      1 [1]
+      2 numbers
+      (reduce (fn [fib-numbers, number]
+                (conj fib-numbers (+ (last fib-numbers) (nth fib-numbers (- number 3)))))
+              numbers
+              (range 3 (+ n 1))))))
+
+;; Thinking there must be a better way and learning about lazy-seq's online
+(defn fibs [n]
+  (take n ((fn fib-seq [x y] (cons x (lazy-seq (fib-seq y (+ x y))))) 1 1)))
+
+(= (fibs 3) '(1 1 2))
+
+(= (fibs 6) '(1 1 2 3 5 8))
+
+(= (fibs 8) '(1 1 2 3 5 8 13 21))
+
+
+;; 27 Palindrome Detector
+
+(defn palindrome? [coll]
+  (= (reverse coll) (map identity coll)))
+
+(false? (palindrome? '(1 2 3 4 5)))
+
+(true? (palindrome? "racecar"))
+
+(true? (palindrome? [:foo :bar :foo]))
+
+(true? (palindrome? '(1 1 3 3 1 1)))
+
+(false? (palindrome? '(:a :b :c)))
+
+
+;; 28 Flatten a Sequence
+
+(defn coll-flatten [coll]
+  (reduce (fn [flattened elem]
+            (if (sequential? elem)
+              (concat flattened (coll-flatten elem))
+              (concat flattened (list elem))))
+          ()
+          coll))
+
+(= (coll-flatten '((1 2) 3 [4 [5 6]])) '(1 2 3 4 5 6))
+
+(= (coll-flatten ["a" ["b"] "c"]) '("a" "b" "c"))
+
+(= (coll-flatten '((((:a))))) '(:a))
