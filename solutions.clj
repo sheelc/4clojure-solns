@@ -150,7 +150,7 @@
 
 ;; Using more seq functions
 ;; O(N)
-(defn penultimate [coll] (fnext (reverse coll)))
+(defn penultimate [coll] (second (reverse coll)))
 
 (= (penultimate (list 1 2 3 4 5)) 4)
 
@@ -322,3 +322,163 @@
 (= (coll-flatten ["a" ["b"] "c"]) '("a" "b" "c"))
 
 (= (coll-flatten '((((:a))))) '(:a))
+
+
+;; 29 Get the Caps
+
+(defn cap-getter [s]
+  (clojure.string/join (filter #(java.lang.Character/isUpperCase %) s)))
+
+;; Learning about regexes and 'str' from #30
+
+(defn cap-getter [s]
+  (apply str (re-seq #"[A-Z]" s)))
+
+(= (cap-getter "HeLlO, WoRlD!") "HLOWRD")
+
+(empty? (cap-getter "nothing"))
+
+(= (cap-getter "$#A(*&987Zf") "AZ")
+
+
+;; 30 Compress a Sequence
+
+(defn compress [coll]
+  (map first (partition-by identity coll)))
+
+(= (apply str (compress "Leeeeeerrroyyy")) "Leroy")
+
+(= (compress [1 1 2 3 3 2 2 3]) '(1 2 3 2 3))
+
+(= (compress [[1 2] [1 2] [3 4] [1 2]]) '([1 2] [3 4] [1 2]))
+
+
+;; 31 Pack a Sequence
+
+(defn pack-a-seq [coll]
+  (partition-by identity coll))
+
+(= (pack-a-seq [1 1 2 1 1 1 3 3]) '((1 1) (2) (1 1 1) (3 3)))
+
+(= (pack-a-seq [:a :a :b :b :c]) '((:a :a) (:b :b) (:c)))
+
+(= (pack-a-seq [[1 2] [1 2] [3 4]]) '(([1 2] [1 2]) ([3 4])))
+
+
+;; 32 Duplicate a Sequence
+
+(defn duper [coll]
+  (mapcat #(list % %) coll))
+
+(defn duper [coll]
+  (interleave coll coll))
+
+(= (duper [1 2 3]) '(1 1 2 2 3 3))
+
+(= (duper [:a :a :b :b]) '(:a :a :a :a :b :b :b :b))
+
+(= (duper [[1 2] [3 4]]) '([1 2] [1 2] [3 4] [3 4]))
+
+(= (duper [[1 2] [3 4]]) '([1 2] [1 2] [3 4] [3 4]))
+
+
+;; 33 Replicate a Sequence
+
+(defn replicator [coll n]
+  (mapcat (partial repeat n) coll))
+
+(= (replicator [1 2 3] 2) '(1 1 2 2 3 3))
+
+(= (replicator [:a :b] 4) '(:a :a :a :a :b :b :b :b))
+
+(= (replicator [4 5 6] 1) '(4 5 6))
+
+(= (replicator [[1 2] [3 4]] 2) '([1 2] [1 2] [3 4] [3 4]))
+
+(= (replicator [44 33] 2) [44 44 33 33])
+
+
+;; 34 Implement range
+
+;; Lazy sequence
+(defn custom-range [start end]
+  (if (= start end)
+    '()
+    (cons start (lazy-seq (custom-range (inc start) end)))))
+
+;; Less code though...
+(defn custom-range [start end]
+  (take (- end start) (iterate inc start)))
+
+(= (custom-range 1 4) '(1 2 3))
+
+(= (custom-range -2 2) '(-2 -1 0 1))
+
+(= (custom-range 5 8) '(5 6 7))
+
+
+;; 35 Local bindings
+
+(= 7 (let [x 5] (+ 2 x)))
+
+(= 7 (let [x 3, y 10] (- y x)))
+
+(= 7 (let [x 21] (let [y 3] (/ x y))))
+
+
+;; 36 Let it Be
+
+;; Commas for clarity?
+(= 10 (let [x 7, y 3, z 1] (+ x y)))
+
+(= 4 (let [x 7, y 3, z 1] (+ y z)))
+
+(= 1 (let [x 7, y 3, z 1] z))
+
+
+;; 37 Regular Expressions
+
+(= "ABC" (apply str (re-seq #"[A-Z]+" "bA1B3Ce ")))
+
+
+;; 38 Maximum value
+
+;; Easy to understand, but likely O(N log N) or worse
+(defn max-val [& args]
+  (first (sort > args)))
+
+;; Back to O(N)
+(defn max-val [f & rest-args]
+  (reduce #(if (> %1 %2) %1 %2) f rest-args))
+
+(= (max-val 1 8 3 4) 8)
+
+(= (max-val 30 20) 30)
+
+(= (max-val 45 67 11) 67)
+
+
+;; 39 Interleave Two Seqs
+
+(defn coll-interleave [coll-1 coll-2]
+  (mapcat #(list %1 %2) coll-1 coll-2))
+
+(= (coll-interleave [1 2 3] [:a :b :c]) '(1 :a 2 :b 3 :c))
+
+(= (coll-interleave [1 2] [3 4 5 6]) '(1 3 2 4))
+
+(= (coll-interleave [1 2 3 4] [5]) [1 5])
+
+(= (coll-interleave [30 20] [25 15]) [30 25 20 15])
+
+
+;; 40 Interpose a Seq
+
+(defn coll-interpose [sep coll]
+  (drop-last (interleave coll (repeat sep))))
+
+(= (coll-interpose 0 [1 2 3]) [1 0 2 0 3])
+
+(= (apply str (coll-interpose ", " ["one" "two" "three"])) "one, two, three")
+
+(= (coll-interpose :z [:a :b :c :d]) [:a :z :b :z :c :z :d])
