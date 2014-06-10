@@ -59,7 +59,7 @@
 (= {:a 1, :b 2, :c 3} (conj {:a 1} {:b 2} [:c 3]))
 
 
-;; 12 Intro to colluences
+;; 12 Intro to sequences
 
 (= 3 (first '(3 2 1)))
 
@@ -68,7 +68,7 @@
 (= 3 (last (list 1 2 3)))
 
 
-;; 13 colluences: rest
+;; 13 sequences: rest
 
 (= [20 30 40] (rest [10 20 30 40]))
 
@@ -106,12 +106,12 @@
 (= (greeting "Rhea") "Hello, Rhea!")
 
 
-;; 17 colluences: map
+;; 17 sequences: map
 
 (= '(6 7 8) (map #(+ % 5) '(1 2 3)))
 
 
-;; 18 colluences: filter
+;; 18 sequences: filter
 
 (= '(6 7) (filter #(> % 5) '(3 4 5 6 7)))
 
