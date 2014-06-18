@@ -509,3 +509,102 @@
 
 (= (fac 8) 40320)
 
+
+;; 43 Reverse Interleave
+
+;; With help from the Internet
+(defn rev-interleave [coll n]
+  (apply map list (partition n coll)))
+
+(= (rev-interleave [1 2 3 4 5 6] 2) '((1 3 5) (2 4 6)))
+
+(= (rev-interleave (range 9) 3) '((0 3 6) (1 4 7) (2 5 8)))
+
+(= (rev-interleave (range 10) 5) '((0 5) (1 6) (2 7) (3 8) (4 9)))
+
+
+;; 44 Rotate Sequence
+
+(defn rotate [n coll]
+  (mapcat identity (reverse (split-at (mod n (count coll)) coll))))
+
+(= (rotate 2 [1 2 3 4 5]) '(3 4 5 1 2))
+
+(= (rotate -2 [1 2 3 4 5]) '(4 5 1 2 3))
+
+(= (rotate 6 [1 2 3 4 5]) '(2 3 4 5 1))
+
+(= (rotate 1 '(:a :b :c)) '(:b :c :a))
+
+(= (rotate -4 '(:a :b :c)) '(:c :a :b))
+
+
+;; 45 Intro to Iterate
+
+(= '(1 4 7 10 13) (take 5 (iterate #(+ 3 %) 1)))
+
+
+;; 46 Flipping Out
+
+(defn flipping-out [f]
+  (fn [& coll] (apply f (reverse coll))))
+
+(= 3 ((flipping-out nth) 2 [1 2 3 4 5]))
+
+(= true ((flipping-out >) 7 8))
+
+(= 4 ((flipping-out quot) 2 8))
+
+(= [1 2 3] ((flipping-out take) [1 2 3 4 5] 3))
+
+
+;; 47 Contain Yourself
+
+(contains? #{4 5 6} 4)
+
+(contains? [1 1 1 1 1] 4)
+
+(contains? {4 :a 2 :b} 4)
+
+(not (contains? '(1 2 4) 4)) ; works on 4clojure but fails in clojure 1.5.1
+
+
+;; 48 Intro to some
+
+(= 6 (some #{2 7 6} [5 6 7 8]))
+
+(= 6 (some #(when (even? %) %) [5 6 7 8]))
+
+
+;; 49 Split a sequence
+
+(defn coll-split-at [n coll]
+  (list (take n coll) (drop n coll)))
+
+(= (coll-split-at 3 [1 2 3 4 5 6]) [[1 2 3] [4 5 6]])
+
+(= (coll-split-at 1 [:a :b :c :d]) [[:a] [:b :c :d]])
+
+(= (coll-split-at 2 [[1 2] [3 4] [5 6]]) [[[1 2] [3 4]] [[5 6]]])
+
+
+;; 50 Split by Type
+
+(defn split-by-type [coll]
+  (vals (group-by type coll)))
+
+(= (set (split-by-type [1 :a 2 :b 3 :c])) #{[1 2 3] [:a :b :c]})
+
+(= (set (split-by-type [:a "foo"  "bar" :b])) #{[:a :b] ["foo" "bar"]})
+
+(= (set (split-by-type [[1 2] :a [3 4] 5 6 :b])) #{[[1 2] [3 4]] [:a :b] [5 6]})
+
+
+;; 51 Advanced Destructuring
+
+(= [1 2 [3 4 5] [1 2 3 4 5]] (let [[a b & c :as d] [1 2 3 4 5]] [a b c d]))
+
+
+;; 52 Intro to Destructuring
+
+(= [2 4] (let [[a b c d e f g] (range)] [c e]))
