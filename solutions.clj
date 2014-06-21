@@ -120,9 +120,9 @@
 
 ;; Only relying on first/rest
 (defn coll-last [coll]
-   (if (empty? (rest coll))
-     (first coll)
-     (coll-last (rest coll))))
+  (if (empty? (rest coll))
+    (first coll)
+    (coll-last (rest coll))))
 
 ;; Using more seq functions
 (defn coll-last [coll]
@@ -211,10 +211,10 @@
 (defn coll-reverse [coll]
   (loop [reverse-coll ()
          coll-to-reverse coll]
-      (if (empty? coll-to-reverse)
-        reverse-coll
-        (recur (cons (first coll-to-reverse) reverse-coll)
-               (rest coll-to-reverse)))))
+    (if (empty? coll-to-reverse)
+      reverse-coll
+      (recur (cons (first coll-to-reverse) reverse-coll)
+             (rest coll-to-reverse)))))
 
 ;; Using more seq functions
 (defn coll-reverse [coll]
@@ -608,3 +608,77 @@
 ;; 52 Intro to Destructuring
 
 (= [2 4] (let [[a b c d e f g] (range)] [c e]))
+
+
+;; 53 Longest Increasing Sub-Seq
+
+(defn longest-inc-sub-seq [coll]
+  (->> (reductions (fn [prev-seq el]
+                     (if (< el (first prev-seq))
+                       (cons el prev-seq)
+                       (list el)))
+                   (list (last coll))
+                   (rest (reverse coll)))
+       (filter #(> (count %) 1))
+       (cons ())
+       (apply max-key count)))
+
+(= (longest-inc-sub-seq [1 0 1 2 3 0 4 5]) [0 1 2 3])
+
+(= (longest-inc-sub-seq [5 6 1 3 2 7]) [5 6])
+
+(= (longest-inc-sub-seq [2 3 3 4 5]) [3 4 5])
+
+(= (longest-inc-sub-seq [7 6 5 4]) [])
+
+
+;; 54 Partition a Sequence
+
+(defn coll-partition [n coll]
+  (when-not (< (count coll) n)
+    (cons (take n coll)
+          (lazy-seq (coll-partition n (nthrest coll n))))))
+
+(= (coll-partition 3 (range 9)) '((0 1 2) (3 4 5) (6 7 8)))
+
+(= (coll-partition 2 (range 8)) '((0 1) (2 3) (4 5) (6 7)))
+
+(= (coll-partition 3 (range 8)) '((0 1 2) (3 4 5)))
+
+
+;; 55 Count Occurrences
+
+(defn coll-frequencies [coll]
+  (into {} (map #(vector (first %) (count (second %))) (group-by identity coll))))
+
+;; trying transients for some speeeeed
+(defn coll-frequencies [coll]
+  (persistent! (reduce (fn [counts el]
+                         (assoc! counts el (inc (counts el 0))))
+                       (transient {})
+                       coll)))
+
+(= (coll-frequencies [1 1 2 3 2 1 1]) {1 4, 2 2, 3 1})
+
+(= (coll-frequencies [:b :a :b :a :b]) {:a 2, :b 3})
+
+(= (coll-frequencies '([1 2] [1 3] [1 3])) {[1 2] 1, [1 3] 2})
+
+
+;; 56 Find Distinct Items
+
+(defn coll-distinct [coll]
+  (reduce (fn [distincts el]
+            (if (some #{el} distincts)
+              distincts
+              (conj distincts el)))
+          []
+          coll))
+
+(= (coll-distinct [1 2 1 3 1 2 4]) [1 2 3 4])
+
+(= (coll-distinct [:a :a :b :b :c :c]) [:a :b :c])
+
+(= (coll-distinct '([2 4] [1 2] [1 3] [1 3])) '([2 4] [1 2] [1 3]))
+
+(= (coll-distinct (range 50)) (range 50))
