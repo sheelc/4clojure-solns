@@ -402,8 +402,7 @@
 
 ;; Lazy sequence
 (defn custom-range [start end]
-  (if (= start end)
-    '()
+  (when-not (= start end)
     (cons start (lazy-seq (custom-range (inc start) end)))))
 
 ;; Less code though...
@@ -682,3 +681,77 @@
 (= (coll-distinct '([2 4] [1 2] [1 3] [1 3])) '([2 4] [1 2] [1 3]))
 
 (= (coll-distinct (range 50)) (range 50))
+
+
+;; 57 Simple Recursion
+
+(= '(5 4 3 2 1) ((fn foo [x] (when (> x 0) (conj (foo (dec x)) x))) 5))
+
+
+;; 58 Function Composition
+
+(defn composition [& fns]
+  (fn [& args]
+    (first (reduce #(list (apply %2 %1)) args (reverse fns)))))
+
+(= [3 2 1] ((composition rest reverse) [1 2 3 4]))
+
+(= 5 ((composition (partial + 3) second) [1 2 3 4]))
+
+(= true ((composition zero? #(mod % 8) +) 3 5 7 9))
+
+(= "HELLO" ((composition #(.toUpperCase %) #(apply str %) take) 5 "hello world"))
+
+
+;; 59 Juxtaposition
+
+(defn juxtaposition [& fns]
+  (fn [& args]
+    (map #(apply % args) fns)))
+
+(= [21 6 1] ((juxtaposition + max min) 2 3 5 1 6 4))
+
+(= ["HELLO" 5] ((juxtaposition #(.toUpperCase %) count) "hello"))
+
+(= [2 6 4] ((juxtaposition :a :c :b) {:a 2, :b 4, :c 6, :d 8 :e 10}))
+
+
+;; 60 Sequence Reductions
+
+(defn coll-reductions
+  ([f coll] (coll-reductions f (f (first coll)) (rest coll)))
+  ([f initial-val coll]
+   (cons initial-val (when (seq coll)
+                       (lazy-seq (coll-reductions f
+                                                  (f initial-val (first coll))
+                                                  (rest coll)))))))
+
+(= (take 5 (coll-reductions + (range))) [0 1 3 6 10])
+
+(= (coll-reductions conj [1] [2 3 4]) [[1] [1 2] [1 2 3] [1 2 3 4]])
+
+(= (last (coll-reductions * 2 [3 4 5])) (reduce * 2 [3 4 5]) 120)
+
+
+;; 61 Map Construction
+
+(defn coll-zipmap [& colls]
+  (into {} (apply map vector colls)))
+
+(= (coll-zipmap [:a :b :c] [1 2 3]) {:a 1, :b 2, :c 3})
+
+(= (coll-zipmap [1 2 3 4] ["one" "two" "three"]) {1 "one", 2 "two", 3 "three"})
+
+(= (coll-zipmap [:foo :bar] ["foo" "bar" "baz"]) {:foo "foo", :bar "bar"})
+
+
+;; 62 Re-implement Iterate
+
+(defn re-iterate [f x]
+  (cons x (lazy-seq (re-iterate f (f x)))))
+
+(= (take 5 (re-iterate #(* 2 %) 1)) [1 2 4 8 16])
+
+(= (take 100 (re-iterate inc 0)) (take 100 (range)))
+
+(= (take 9 (re-iterate #(inc (mod % 3)) 1)) (take 9 (cycle [1 2 3])))
