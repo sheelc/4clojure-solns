@@ -755,3 +755,102 @@
 (= (take 100 (re-iterate inc 0)) (take 100 (range)))
 
 (= (take 9 (re-iterate #(inc (mod % 3)) 1)) (take 9 (cycle [1 2 3])))
+
+
+;; 63 Group a Sequence
+
+(defn coll-group-by [f coll]
+  (persistent! (reduce (fn [groups, el]
+                         (let [k (f el)]
+                           (assoc! groups k (conj (groups k []) el))))
+                       (transient {})
+                       coll)))
+
+(= (coll-group-by #(> % 5) [1 3 6 8]) {false [1 3], true [6 8]})
+
+(= (coll-group-by #(apply / %) [[1 2] [2 4] [4 6] [3 6]])
+   {1/2 [[1 2] [2 4] [3 6]], 2/3 [[4 6]]})
+
+(= (coll-group-by count [[1] [1 2] [3] [1 2 3] [2 3]])
+   {1 [[1] [3]], 2 [[1 2] [2 3]], 3 [[1 2 3]]})
+
+
+;; 64 Intro to Reduce
+
+(= 15 (reduce + [1 2 3 4 5]))
+
+(=  0 (reduce + []))
+
+(=  6 (reduce + 1 [2 3]))
+
+
+;; 65 Black Box Testing
+
+(defn black-box-testing [coll]
+  (let [modified-coll (conj (conj coll [:a 1] [:a 1]) [:b 2])
+        items-added (- (count modified-coll) (count coll))]
+    (if (= items-added 3)
+      (if (= (first modified-coll) [:b 2])
+        :list
+        :vector)
+      (if (modified-coll [:a 1])
+        :set
+        :map))))
+
+(= :map (black-box-testing {:a 1, :b 2}))
+
+(= :list (black-box-testing (range (rand-int 20))))
+
+(= :vector (black-box-testing [1 2 3 4 5 6]))
+
+(= :set (black-box-testing #{10 (rand-int 5)}))
+
+(= [:map :set :vector :list] (map black-box-testing [{} #{} [] ()]))
+
+
+;; 66 Greatest Common Divisor
+
+(defn gcd [x y]
+  (last (filter (fn [divisor]
+                  (and (= 0 (rem x divisor)) (= 0 (rem y divisor))))
+                (range 1 (inc (min x y))))))
+
+(= (gcd 2 4) 2)
+
+(= (gcd 10 5) 5)
+
+(= (gcd 5 7) 1)
+
+(= (gcd 1023 858) 33)
+
+
+;; 67 Prime Numbers
+
+(defn- prime? [x]
+  (not-any? #(= 0 (rem x %)) (range 2 (inc (Math/floor (Math/sqrt x))))))
+
+(defn- lazy-primes
+  ([] (lazy-primes 2))
+  ([starting-from]
+   (if (prime? starting-from)
+     (cons starting-from (lazy-seq (lazy-primes (inc starting-from))))
+     (recur (inc starting-from)))))
+
+(defn primes [x]
+  (take x (lazy-primes)))
+
+(= (primes 2) [2 3])
+
+(= (primes 5) [2 3 5 7 11])
+
+(= (last (primes 100)) 541)
+
+
+;; 68 Recurring Theme
+
+(= '(7 6 5 4 3)
+  (loop [x 5
+         result []]
+    (if (> x 0)
+      (recur (dec x) (conj result (+ 2 x)))
+      result)))
