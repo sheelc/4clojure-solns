@@ -760,11 +760,7 @@
 ;; 63 Group a Sequence
 
 (defn coll-group-by [f coll]
-  (persistent! (reduce (fn [groups, el]
-                         (let [k (f el)]
-                           (assoc! groups k (conj (groups k []) el))))
-                       (transient {})
-                       coll)))
+  (apply merge-with concat (map #(hash-map (f %) (list %)) coll)))
 
 (= (coll-group-by #(> % 5) [1 3 6 8]) {false [1 3], true [6 8]})
 
@@ -854,3 +850,52 @@
     (if (> x 0)
       (recur (dec x) (conj result (+ 2 x)))
       result)))
+
+
+;; 69 Merge with a Function
+
+(defn coll-merge-with [f & coll]
+  (reduce (fn [merged tuple]
+            (assoc merged (first tuple) (if (merged (first tuple))
+                                          (f (merged (first tuple)) (second tuple))
+                                          (second tuple))))
+          (first coll)
+          (mapcat (partial into []) (rest coll))))
+
+(= (coll-merge-with * {:a 2, :b 3, :c 4} {:a 2} {:b 2} {:c 5})
+   {:a 4, :b 6, :c 20})
+
+(= (coll-merge-with - {1 10, 2 20} {1 3, 2 10, 3 15})
+   {1 7, 2 10, 3 15})
+
+(= (coll-merge-with concat {:a [3], :b [6]} {:a [4 5], :c [8 9]} {:b [7]})
+   {:a [3 4 5], :b [6 7], :c [8 9]})
+
+
+;; 70 Word Sorting
+
+(defn split-sort [s]
+  (sort-by #(.toLowerCase %) (re-seq #"\w+" s)))
+
+(= (split-sort  "Have a nice day.")
+   ["a" "day" "Have" "nice"])
+
+(= (split-sort  "Clojure is a fun language!")
+   ["a" "Clojure" "fun" "is" "language"])
+
+(= (split-sort  "Fools fall for foolish follies.")
+   ["fall" "follies" "foolish" "Fools" "for"])
+
+
+;; 71 Rearranging Code: ->
+
+(= (last (sort (rest (reverse [2 5 4 1 3 6]))))
+   (-> [2 5 4 1 3 6] (reverse) (rest) (sort) (last))
+   5)
+
+
+;; 72 Rearranging Code: ->>
+
+(= (reduce + (map inc (take 3 (drop 2 [2 5 4 1 3 6]))))
+   (->> [2 5 4 1 3 6] (drop 2) (take 3) (map inc) (reduce +))
+   11)
