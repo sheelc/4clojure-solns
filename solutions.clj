@@ -899,3 +899,140 @@
 (= (reduce + (map inc (take 3 (drop 2 [2 5 4 1 3 6]))))
    (->> [2 5 4 1 3 6] (drop 2) (take 3) (map inc) (reduce +))
    11)
+
+
+;; 73 Analyze a Tic-Tac-Toe Board
+
+(defn left-diag [board]
+  (reduce #(cons (nth (nth board %2) %2) %1) () (range 3)))
+
+(defn right-diag [board]
+  (left-diag (map reverse board)))
+
+(defn check-for-win [board sym]
+  (reduce #(or %1 (apply = sym %2))
+          false
+          (concat
+           (partition 3 (apply interleave board))
+           board
+           (list (left-diag board) (right-diag board)))))
+
+(defn tic-tac-toe [board]
+  (if (check-for-win board :x)
+    :x
+    (if (check-for-win board :o)
+      :o)))
+
+
+(= nil (tic-tac-toe [[:e :e :e]
+            [:e :e :e]
+            [:e :e :e]]))
+
+(= :x (tic-tac-toe [[:x :e :o]
+           [:x :e :e]
+           [:x :e :o]]))
+
+(= :o (tic-tac-toe [[:e :x :e]
+           [:o :o :o]
+           [:x :e :x]]))
+
+(= nil (tic-tac-toe [[:x :e :o]
+            [:x :x :e]
+            [:o :x :o]]))
+
+(= :x (tic-tac-toe [[:x :e :e]
+           [:o :x :e]
+           [:o :e :x]]))
+
+(= :o (tic-tac-toe [[:x :e :o]
+           [:x :o :e]
+           [:o :e :x]]))
+
+(= nil (tic-tac-toe [[:x :o :x]
+            [:x :o :x]
+            [:o :x :o]]))
+
+
+;; 74 Filter Perfect Squares
+
+(defn square? [x]
+  (let [root (Math/sqrt x)]
+    (= (Math/floor root) root)))
+
+(defn filter-squares [s]
+  (->> (clojure.string/split s #",")
+       (map read-string)
+       (filter square?)
+       (clojure.string/join ",")))
+
+(= (filter-squares "4,5,6,7,8,9") "4,9")
+
+(= (filter-squares "15,16,25,36,37") "16,25,36")
+
+
+;; 75 Euler's Totient Function
+
+(defn gcd-copied-from-above [x y]
+  (last (filter (fn [divisor]
+                  (and (= 0 (rem x divisor)) (= 0 (rem y divisor))))
+                (range 1 (inc (min x y))))))
+
+(defn coprime [x y]
+  (= 1 (gcd-copied-from-above x y)))
+
+(defn totient [x]
+  (inc (count (filter #(coprime %1 x) (range 2 x)))))
+
+(= (totient 1) 1)
+
+(= (totient 10) (count '(1 3 7 9)) 4)
+
+(= (totient 40) 16)
+
+(= (totient 99) 60)
+
+
+;; 76 Intro to Trampoline
+
+(= [1 3 5 7 9 11]
+   (letfn
+     [(foo [x y] #(bar (conj x y) y))
+      (bar [x y] (if (> (last x) 10)
+                   x
+                   #(foo x (+ 2 y))))]
+     (trampoline foo [] 1)))
+
+
+;; 77 Anagram Finder
+
+(defn anagrams [coll]
+  (set (filter #(> (count %) 1)
+               (map #(set (second %))
+                    (group-by #(apply str (sort %))
+                              coll)))))
+
+(= (anagrams ["meat" "mat" "team" "mate" "eat"])
+   #{#{"meat" "team" "mate"}})
+
+(= (anagrams ["veer" "lake" "item" "kale" "mite" "ever"])
+   #{#{"veer" "ever"} #{"lake" "kale"} #{"mite" "item"}})
+
+
+;; 78 Reimplement Trampoline
+
+(defn re-trampoline [f & args]
+  (loop [first-res (apply f args)]
+    (if (clojure.test/function? first-res)
+      (recur (first-res))
+      first-res)))
+
+(= (letfn [(triple [x] #(sub-two (* 3 x)))
+          (sub-two [x] #(stop?(- x 2)))
+          (stop? [x] (if (> x 50) x #(triple x)))]
+    (re-trampoline triple 2))
+  82)
+
+(= (letfn [(my-even? [x] (if (zero? x) true #(my-odd? (dec x))))
+          (my-odd? [x] (if (zero? x) false #(my-even? (dec x))))]
+    (map (partial re-trampoline my-even?) (range 6)))
+  [true false true false true false])
