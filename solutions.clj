@@ -1022,7 +1022,7 @@
 
 (defn re-trampoline [f & args]
   (loop [first-res (apply f args)]
-    (if (clojure.test/function? first-res)
+    (if (fn? first-res)
       (recur (first-res))
       first-res)))
 
