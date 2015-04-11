@@ -845,11 +845,11 @@
 ;; 68 Recurring Theme
 
 (= '(7 6 5 4 3)
-  (loop [x 5
-         result []]
-    (if (> x 0)
-      (recur (dec x) (conj result (+ 2 x)))
-      result)))
+   (loop [x 5
+          result []]
+     (if (> x 0)
+       (recur (dec x) (conj result (+ 2 x)))
+       result)))
 
 
 ;; 69 Merge with a Function
@@ -925,32 +925,32 @@
 
 
 (= nil (tic-tac-toe [[:e :e :e]
-            [:e :e :e]
-            [:e :e :e]]))
+                     [:e :e :e]
+                     [:e :e :e]]))
 
 (= :x (tic-tac-toe [[:x :e :o]
-           [:x :e :e]
-           [:x :e :o]]))
+                    [:x :e :e]
+                    [:x :e :o]]))
 
 (= :o (tic-tac-toe [[:e :x :e]
-           [:o :o :o]
-           [:x :e :x]]))
+                    [:o :o :o]
+                    [:x :e :x]]))
 
 (= nil (tic-tac-toe [[:x :e :o]
-            [:x :x :e]
-            [:o :x :o]]))
+                     [:x :x :e]
+                     [:o :x :o]]))
 
 (= :x (tic-tac-toe [[:x :e :e]
-           [:o :x :e]
-           [:o :e :x]]))
+                    [:o :x :e]
+                    [:o :e :x]]))
 
 (= :o (tic-tac-toe [[:x :e :o]
-           [:x :o :e]
-           [:o :e :x]]))
+                    [:x :o :e]
+                    [:o :e :x]]))
 
 (= nil (tic-tac-toe [[:x :o :x]
-            [:x :o :x]
-            [:o :x :o]]))
+                     [:x :o :x]
+                     [:o :x :o]]))
 
 
 ;; 74 Filter Perfect Squares
@@ -996,10 +996,10 @@
 
 (= [1 3 5 7 9 11]
    (letfn
-     [(foo [x y] #(bar (conj x y) y))
-      (bar [x y] (if (> (last x) 10)
-                   x
-                   #(foo x (+ 2 y))))]
+       [(foo [x y] #(bar (conj x y) y))
+        (bar [x y] (if (> (last x) 10)
+                     x
+                     #(foo x (+ 2 y))))]
      (trampoline foo [] 1)))
 
 
@@ -1027,12 +1027,12 @@
       first-res)))
 
 (= (letfn [(triple [x] #(sub-two (* 3 x)))
-          (sub-two [x] #(stop?(- x 2)))
-          (stop? [x] (if (> x 50) x #(triple x)))]
-    (re-trampoline triple 2))
-  82)
+           (sub-two [x] #(stop?(- x 2)))
+           (stop? [x] (if (> x 50) x #(triple x)))]
+     (re-trampoline triple 2))
+   82)
 
 (= (letfn [(my-even? [x] (if (zero? x) true #(my-odd? (dec x))))
-          (my-odd? [x] (if (zero? x) false #(my-even? (dec x))))]
-    (map (partial re-trampoline my-even?) (range 6)))
-  [true false true false true false])
+           (my-odd? [x] (if (zero? x) false #(my-even? (dec x))))]
+     (map (partial re-trampoline my-even?) (range 6)))
+   [true false true false true false])
