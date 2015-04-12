@@ -1080,3 +1080,17 @@
 (= (perfect-num? 500) false)
 
 (= (perfect-num? 8128) true)
+
+
+;; 81 Set Intersection
+
+(defn coll-intersection [& colls]
+  (->> (apply map colls)
+       (remove nil?)
+       (into #{})))
+
+(= (coll-intersection #{0 1 2 3} #{2 3 4 5}) #{2 3})
+
+(= (coll-intersection #{0 1 2} #{3 4 5}) #{})
+
+(= (coll-intersection #{:a :b :c :d} #{:c :e :a :f :d}) #{:a :c :d})
