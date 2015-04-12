@@ -1058,3 +1058,25 @@
          [9 9 2 4]
          [4 6 6 7 8]
          [5 7 3 5 1 4])))
+
+
+;; 80 Perfect Numbers
+
+(defn divisible-by? [x]
+  (comp integer? #(/ x %)))
+
+(defn perfect-num? [x]
+  (->> (rest (range x))
+       (filter (divisible-by? x))
+       (apply +)
+       (= x)))
+
+(= (perfect-num? 6) true)
+
+(= (perfect-num? 7) false)
+
+(= (perfect-num? 496) true)
+
+(= (perfect-num? 500) false)
+
+(= (perfect-num? 8128) true)
