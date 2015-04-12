@@ -1036,3 +1036,29 @@
            (my-odd? [x] (if (zero? x) false #(my-even? (dec x))))]
      (map (partial re-trampoline my-even?) (range 6)))
    [true false true false true false])
+
+
+;; 79 Triangle Minimal Path
+
+(defn- minimal-path-vals [next-level level]
+  (map + level (map min next-level (rest next-level))))
+
+(defn triangle-minimal-path [triangle]
+  (->> triangle
+       reverse
+       (reduce (partial minimal-path-vals))
+       first))
+
+(= 7 (triangle-minimal-path
+      '([1]
+        [2 4]
+        [5 1 4]
+        [2 3 4 5])))
+
+(= 20 (triangle-minimal-path
+       '([3]
+         [2 4]
+         [1 9 3]
+         [9 9 2 4]
+         [4 6 6 7 8]
+         [5 7 3 5 1 4])))
