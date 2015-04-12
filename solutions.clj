@@ -916,7 +916,7 @@
 (defn tic-tac-toe [board]
   (if (check-for-win board :x)
     :x
-    (if (check-for-win board :o)
+    (when (check-for-win board :o)
       :o)))
 
 
