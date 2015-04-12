@@ -138,18 +138,15 @@
 ;; 20 Penultimate Element
 
 ;; Only relying on first/rest
-;; O(2N)
 (defn penultimate [coll]
   (if (<= (count (rest coll)) 1)
     (first coll)
     (recur (rest coll))))
 
 ;; Using more seq functions
-;; O(2N)
 (defn penultimate [coll] (last (butlast coll)))
 
 ;; Using more seq functions
-;; O(N)
 (defn penultimate [coll] (second (reverse coll)))
 
 (= (penultimate (list 1 2 3 4 5)) 4)
@@ -446,7 +443,6 @@
 (defn max-val [& args]
   (first (sort > args)))
 
-;; Back to O(N)
 (defn max-val [f & rest-args]
   (reduce #(if (> %1 %2) %1 %2) f rest-args))
 
